@@ -1,6 +1,6 @@
 import { prismaClient } from '../lib/db';
 import { createHmac, randomBytes } from 'crypto';
-import jwt from 'jsonwebtoken'; // Change import to use the default export of 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = "mobanda7inches";
 
@@ -21,6 +21,9 @@ export class UserService {
     private static generateHash(salt: string, password: string) {
         const hashedPassword = createHmac('sha256', salt).update(password).digest('hex');
         return hashedPassword;
+    }
+    public static getUserById(id: string) {
+        return prismaClient.user.findUnique({where:{id}})
     }
 
     public static async createUser(payload: CreateUserPayload) {
@@ -44,7 +47,7 @@ export class UserService {
     }
 
     private static async getUserByEmail(email: string) {
-        return await prismaClient.user.findUnique({ where: { email } }); // Add 'await' here
+        return await prismaClient.user.findUnique({ where: { email } });
     }
 
     public static async getUserToken(payload: GetUserTokenPayload) {
@@ -64,5 +67,14 @@ export class UserService {
         const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET);
         return token; // Return the token
     }
+
+    public static decodeJWTToken(token: string) {
+        try {
+            return jwt.verify(token, JWT_SECRET);
+        } catch (error) {
+            throw new Error('Invalid token');
+        }
+    }
 }
+
 

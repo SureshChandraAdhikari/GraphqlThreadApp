@@ -12,7 +12,15 @@ const queries = {
             console.error("Error retrieving user token:", error);
             throw new Error("Could not retrieve user token");
         }
+    },
+getCurrentLoggedInUser : async(_:any ,parameters:any , context:any) => {
+    if(context&& context.user){
+        const id = context.user.id;
+        const user = await UserService.getUserById(id)
+        return user;
     }
+    
+}
 };
 
 const mutations = {

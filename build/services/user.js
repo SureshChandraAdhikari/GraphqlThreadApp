@@ -15,12 +15,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const db_1 = require("../lib/db");
 const crypto_1 = require("crypto");
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken")); // Change import to use the default export of 'jsonwebtoken'
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const JWT_SECRET = "mobanda7inches";
 class UserService {
     static generateHash(salt, password) {
         const hashedPassword = (0, crypto_1.createHmac)('sha256', salt).update(password).digest('hex');
         return hashedPassword;
+    }
+    static getUserById(id) {
+        return db_1.prismaClient.user.findUnique({ where: { id } });
     }
     static createUser(payload) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -46,7 +49,7 @@ class UserService {
     }
     static getUserByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.prismaClient.user.findUnique({ where: { email } }); // Add 'await' here
+            return yield db_1.prismaClient.user.findUnique({ where: { email } });
         });
     }
     static getUserToken(payload) {
@@ -64,6 +67,14 @@ class UserService {
             const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email }, JWT_SECRET);
             return token; // Return the token
         });
+    }
+    static decodeJWTToken(token) {
+        try {
+            return jsonwebtoken_1.default.verify(token, JWT_SECRET);
+        }
+        catch (error) {
+            throw new Error('Invalid token');
+        }
     }
 }
 exports.UserService = UserService;

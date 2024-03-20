@@ -24,6 +24,13 @@ const queries = {
             console.error("Error retrieving user token:", error);
             throw new Error("Could not retrieve user token");
         }
+    }),
+    getCurrentLoggedInUser: (_, parameters, context) => __awaiter(void 0, void 0, void 0, function* () {
+        if (context && context.user) {
+            const id = context.user.id;
+            const user = yield user_1.UserService.getUserById(id);
+            return user;
+        }
     })
 };
 const mutations = {
